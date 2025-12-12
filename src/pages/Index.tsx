@@ -68,23 +68,6 @@ const Index = () => {
   ];
 
   const defaultVehicles: Vehicle[] = [
-
-  const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
-    try {
-      const stored = localStorage.getItem(key);
-      return stored ? JSON.parse(stored) : defaultValue;
-    } catch (error) {
-      console.error(`Error loading ${key} from localStorage:`, error);
-      return defaultValue;
-    }
-  };
-
-  const [enterprises, setEnterprises] = useState<Enterprise[]>(() => 
-    loadFromStorage('logistics-enterprises', defaultEnterprises)
-  );
-
-  const [vehicles, setVehicles] = useState<Vehicle[]>(() =>
-    loadFromStorage('logistics-vehicles', [
     {
       id: 1,
       name: 'КамАЗ А123ВС',
@@ -111,7 +94,25 @@ const Index = () => {
       volume: 0,
       status: 'idle',
       route: 'Склад Барнаул-1'
-    }])
+    }
+  ];
+
+  const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
+    try {
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : defaultValue;
+    } catch (error) {
+      console.error(`Error loading ${key} from localStorage:`, error);
+      return defaultValue;
+    }
+  };
+
+  const [enterprises, setEnterprises] = useState<Enterprise[]>(() => 
+    loadFromStorage('logistics-enterprises', defaultEnterprises)
+  );
+
+  const [vehicles, setVehicles] = useState<Vehicle[]>(() =>
+    loadFromStorage('logistics-vehicles', defaultVehicles)
   );
 
   useEffect(() => {

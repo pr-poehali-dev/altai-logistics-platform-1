@@ -20,6 +20,8 @@ interface TabsContentSectionProps {
 }
 
 const TabsContentSection = ({ enterprises, vehicles, selectedPoint, setSelectedPoint, onAddEnterprise, onEditEnterprise, onDeleteEnterprise, onAddVehicle, onEditVehicle, onDeleteVehicle }: TabsContentSectionProps) => {
+  console.log('Rendering TabsContentSection with enterprises:', enterprises.length, 'vehicles:', vehicles.length);
+  
   return (
     <>
       <TabsContent value="map" className="space-y-4">

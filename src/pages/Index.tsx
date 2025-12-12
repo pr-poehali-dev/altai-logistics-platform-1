@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import Header from '@/components/logistics/Header';
@@ -13,7 +13,7 @@ const Index = () => {
   const [selectedPoint, setSelectedPoint] = useState<Enterprise | null>(null);
   const { toast } = useToast();
 
-  const [enterprises, setEnterprises] = useState<Enterprise[]>([
+  const defaultEnterprises: Enterprise[] = [
     {
       id: 1,
       name: 'Завод "Алтай-Прогресс"',
@@ -65,9 +65,26 @@ const Index = () => {
       ],
       status: 'active'
     }
-  ]);
+  ];
 
-  const [vehicles, setVehicles] = useState<Vehicle[]>([
+  const defaultVehicles: Vehicle[] = [
+
+  const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
+    try {
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : defaultValue;
+    } catch (error) {
+      console.error(`Error loading ${key} from localStorage:`, error);
+      return defaultValue;
+    }
+  };
+
+  const [enterprises, setEnterprises] = useState<Enterprise[]>(() => 
+    loadFromStorage('logistics-enterprises', defaultEnterprises)
+  );
+
+  const [vehicles, setVehicles] = useState<Vehicle[]>(() =>
+    loadFromStorage('logistics-vehicles', [
     {
       id: 1,
       name: 'КамАЗ А123ВС',
@@ -94,8 +111,16 @@ const Index = () => {
       volume: 0,
       status: 'idle',
       route: 'Склад Барнаул-1'
-    }
-  ]);
+    }])
+  );
+
+  useEffect(() => {
+    localStorage.setItem('logistics-enterprises', JSON.stringify(enterprises));
+  }, [enterprises]);
+
+  useEffect(() => {
+    localStorage.setItem('logistics-vehicles', JSON.stringify(vehicles));
+  }, [vehicles]);
 
   const [enterpriseDialogOpen, setEnterpriseDialogOpen] = useState(false);
   const [vehicleDialogOpen, setVehicleDialogOpen] = useState(false);

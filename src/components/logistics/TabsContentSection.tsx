@@ -11,9 +11,15 @@ interface TabsContentSectionProps {
   vehicles: Vehicle[];
   selectedPoint: Enterprise | null;
   setSelectedPoint: (point: Enterprise | null) => void;
+  onAddEnterprise?: () => void;
+  onEditEnterprise?: (enterprise: Enterprise) => void;
+  onDeleteEnterprise?: (id: number) => void;
+  onAddVehicle?: () => void;
+  onEditVehicle?: (vehicle: Vehicle) => void;
+  onDeleteVehicle?: (id: number) => void;
 }
 
-const TabsContentSection = ({ enterprises, vehicles, selectedPoint, setSelectedPoint }: TabsContentSectionProps) => {
+const TabsContentSection = ({ enterprises, vehicles, selectedPoint, setSelectedPoint, onAddEnterprise, onEditEnterprise, onDeleteEnterprise, onAddVehicle, onEditVehicle, onDeleteVehicle }: TabsContentSectionProps) => {
   return (
     <>
       <TabsContent value="map" className="space-y-4">
@@ -21,11 +27,18 @@ const TabsContentSection = ({ enterprises, vehicles, selectedPoint, setSelectedP
           enterprises={enterprises} 
           vehicles={vehicles} 
           selectedPoint={selectedPoint} 
-          setSelectedPoint={setSelectedPoint} 
+          setSelectedPoint={setSelectedPoint}
+          onAddEnterprise={onAddEnterprise}
         />
       </TabsContent>
 
       <TabsContent value="enterprises">
+        <div className="flex justify-end mb-4">
+          <Button onClick={onAddEnterprise}>
+            <Icon name="Plus" size={16} className="mr-2" />
+            Добавить предприятие
+          </Button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {enterprises.filter(e => e.type === 'production').map((enterprise) => (
             <Card key={enterprise.id} className="p-6 bg-card/50 backdrop-blur-sm border-border hover:border-primary/50 transition-all">
@@ -40,6 +53,14 @@ const TabsContentSection = ({ enterprises, vehicles, selectedPoint, setSelectedP
                       {getStatusText(enterprise.status)}
                     </Badge>
                   </div>
+                </div>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => onEditEnterprise?.(enterprise)}>
+                    <Icon name="Pencil" size={14} />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => onDeleteEnterprise?.(enterprise.id)}>
+                    <Icon name="Trash2" size={14} />
+                  </Button>
                 </div>
               </div>
 
@@ -80,6 +101,12 @@ const TabsContentSection = ({ enterprises, vehicles, selectedPoint, setSelectedP
       </TabsContent>
 
       <TabsContent value="warehouses">
+        <div className="flex justify-end mb-4">
+          <Button onClick={onAddEnterprise}>
+            <Icon name="Plus" size={16} className="mr-2" />
+            Добавить склад
+          </Button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {enterprises.filter(e => e.type === 'warehouse').map((warehouse) => (
             <Card key={warehouse.id} className="p-6 bg-card/50 backdrop-blur-sm border-border hover:border-secondary/50 transition-all">
@@ -94,6 +121,14 @@ const TabsContentSection = ({ enterprises, vehicles, selectedPoint, setSelectedP
                       {getStatusText(warehouse.status)}
                     </Badge>
                   </div>
+                </div>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => onEditEnterprise?.(warehouse)}>
+                    <Icon name="Pencil" size={14} />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => onDeleteEnterprise?.(warehouse.id)}>
+                    <Icon name="Trash2" size={14} />
+                  </Button>
                 </div>
               </div>
 
@@ -114,6 +149,12 @@ const TabsContentSection = ({ enterprises, vehicles, selectedPoint, setSelectedP
       </TabsContent>
 
       <TabsContent value="transport">
+        <div className="flex justify-end mb-4">
+          <Button onClick={onAddVehicle}>
+            <Icon name="Plus" size={16} className="mr-2" />
+            Добавить транспорт
+          </Button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {vehicles.map((vehicle) => (
             <Card key={vehicle.id} className="p-6 bg-card/50 backdrop-blur-sm border-border">
@@ -127,9 +168,17 @@ const TabsContentSection = ({ enterprises, vehicles, selectedPoint, setSelectedP
                     <p className="text-sm text-muted-foreground">{vehicle.type}</p>
                   </div>
                 </div>
-                <Badge className={getStatusColor(vehicle.status)}>
-                  {getStatusText(vehicle.status)}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge className={getStatusColor(vehicle.status)}>
+                    {getStatusText(vehicle.status)}
+                  </Badge>
+                  <Button variant="ghost" size="sm" onClick={() => onEditVehicle?.(vehicle)}>
+                    <Icon name="Pencil" size={14} />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => onDeleteVehicle?.(vehicle.id)}>
+                    <Icon name="Trash2" size={14} />
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-3">

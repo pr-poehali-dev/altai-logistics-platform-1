@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,9 +10,69 @@ interface MapViewProps {
   vehicles: Vehicle[];
   selectedPoint: Enterprise | null;
   setSelectedPoint: (point: Enterprise | null) => void;
+  onAddEnterprise?: () => void;
 }
 
-const MapView = ({ enterprises, vehicles, selectedPoint, setSelectedPoint }: MapViewProps) => {
+declare global {
+  interface Window {
+    ymaps: any;
+  }
+}
+
+const MapView = ({ enterprises, vehicles, selectedPoint, setSelectedPoint, onAddEnterprise }: MapViewProps) => {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<any>(null);
+  const [mapReady, setMapReady] = useState(false);
+
+  useEffect(() => {
+    if (!mapRef.current || mapInstance.current) return;
+
+    const initMap = () => {
+      if (window.ymaps) {
+        window.ymaps.ready(() => {
+          mapInstance.current = new window.ymaps.Map(mapRef.current, {
+            center: [52.0, 84.0],
+            zoom: 7,
+            controls: ['zoomControl', 'fullscreenControl']
+          });
+
+          enterprises.forEach((enterprise) => {
+            const placemark = new window.ymaps.Placemark(
+              [enterprise.position.x, enterprise.position.y],
+              {
+                balloonContent: `
+                  <div style="padding: 10px;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold;">${enterprise.name}</h3>
+                    <p style="margin: 0; font-size: 12px; color: #666;">
+                      ${enterprise.type === 'production' ? '🏭 Предприятие' : '📦 Склад'}
+                    </p>
+                  </div>
+                `
+              },
+              {
+                preset: enterprise.type === 'production' ? 'islands#blueFactoryIcon' : 'islands#orangeWarehouseIcon'
+              }
+            );
+
+            placemark.events.add('click', () => {
+              setSelectedPoint(enterprise);
+            });
+
+            mapInstance.current.geoObjects.add(placemark);
+          });
+
+          setMapReady(true);
+        });
+      }
+    };
+
+    if (window.ymaps) {
+      initMap();
+    } else {
+      setTimeout(initMap, 1000);
+    }
+  }, [enterprises, setSelectedPoint]);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2">
@@ -19,62 +80,25 @@ const MapView = ({ enterprises, vehicles, selectedPoint, setSelectedPoint }: Map
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Карта Алтайского края</h2>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Icon name="ZoomIn" size={16} />
-              </Button>
-              <Button variant="outline" size="sm">
-                <Icon name="ZoomOut" size={16} />
-              </Button>
-              <Button variant="outline" size="sm">
-                <Icon name="Maximize" size={16} />
+              <Button variant="outline" size="sm" onClick={onAddEnterprise}>
+                <Icon name="Plus" size={16} className="mr-2" />
+                Добавить точку
               </Button>
             </div>
           </div>
           
-          <div className="relative w-full h-[600px] bg-muted/30 rounded-lg overflow-hidden border border-border">
-            <div className="absolute inset-0 bg-gradient-to-br from-muted/40 to-muted/20">
-              <div className="absolute top-4 left-4 bg-card/90 backdrop-blur-sm px-3 py-2 rounded-lg text-sm">
-                📍 Алтайский край
-              </div>
-
-              {enterprises.map((enterprise) => (
-                <div
-                  key={enterprise.id}
-                  className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all hover:scale-110"
-                  style={{ left: `${enterprise.position.x}%`, top: `${enterprise.position.y}%` }}
-                  onClick={() => setSelectedPoint(enterprise)}
-                >
-                  <div className="relative">
-                    <div className={`w-4 h-4 rounded-full ${getStatusColor(enterprise.status)} animate-pulse`} />
-                    <div className="absolute top-0 left-0 w-4 h-4 rounded-full border-2 border-primary/50 animate-ping" />
-                  </div>
-                  <div className="absolute top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap bg-card/95 backdrop-blur-sm px-2 py-1 rounded text-xs border border-border">
-                    {enterprise.name}
-                  </div>
+          <div 
+            ref={mapRef}
+            className="relative w-full h-[600px] bg-muted/30 rounded-lg overflow-hidden border border-border"
+          >
+            {!mapReady && (
+              <div className="absolute inset-0 flex items-center justify-center bg-muted/30">
+                <div className="text-center">
+                  <Icon name="MapPin" size={48} className="mx-auto mb-4 opacity-50 animate-pulse" />
+                  <p className="text-muted-foreground">Загрузка карты...</p>
                 </div>
-              ))}
-
-              <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                <line
-                  x1="35%"
-                  y1="45%"
-                  x2="60%"
-                  y2="35%"
-                  stroke="rgba(155, 135, 245, 0.4)"
-                  strokeWidth="2"
-                  strokeDasharray="5,5"
-                />
-                <line
-                  x1="25%"
-                  y1="60%"
-                  x2="75%"
-                  y2="55%"
-                  stroke="rgba(155, 135, 245, 0.4)"
-                  strokeWidth="2"
-                  strokeDasharray="5,5"
-                />
-              </svg>
-            </div>
+              </div>
+            )}
           </div>
 
           <div className="mt-4 flex items-center gap-6 text-sm">

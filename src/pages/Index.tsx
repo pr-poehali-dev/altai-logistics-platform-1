@@ -3,18 +3,22 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import Header from '@/components/logistics/Header';
 import TabsContentSection from '@/components/logistics/TabsContentSection';
+import EnterpriseDialog from '@/components/logistics/EnterpriseDialog';
+import VehicleDialog from '@/components/logistics/VehicleDialog';
 import { Enterprise, Vehicle } from '@/components/logistics/types';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('map');
   const [selectedPoint, setSelectedPoint] = useState<Enterprise | null>(null);
+  const { toast } = useToast();
 
-  const enterprises: Enterprise[] = [
+  const [enterprises, setEnterprises] = useState<Enterprise[]>([
     {
       id: 1,
       name: 'Завод "Алтай-Прогресс"',
       type: 'production',
-      position: { x: 35, y: 45 },
+      position: { x: 52.5, y: 83.5 },
       input: ['Сырье А', 'Материал Б'],
       output: ['Продукция X', 'Продукция Y'],
       storage: [
@@ -27,7 +31,7 @@ const Index = () => {
       id: 2,
       name: 'Склад "Барнаул-1"',
       type: 'warehouse',
-      position: { x: 60, y: 35 },
+      position: { x: 53.3, y: 83.7 },
       input: ['Продукция X', 'Продукция Y'],
       output: [],
       storage: [
@@ -40,7 +44,7 @@ const Index = () => {
       id: 3,
       name: 'Комбинат "Алтай-Металл"',
       type: 'production',
-      position: { x: 25, y: 60 },
+      position: { x: 51.8, y: 84.2 },
       input: ['Металл', 'Компоненты'],
       output: ['Изделие Z'],
       storage: [
@@ -53,7 +57,7 @@ const Index = () => {
       id: 4,
       name: 'Склад "Бийск"',
       type: 'warehouse',
-      position: { x: 75, y: 55 },
+      position: { x: 52.5, y: 85.2 },
       input: ['Изделие Z'],
       output: [],
       storage: [
@@ -61,9 +65,9 @@ const Index = () => {
       ],
       status: 'active'
     }
-  ];
+  ]);
 
-  const vehicles: Vehicle[] = [
+  const [vehicles, setVehicles] = useState<Vehicle[]>([
     {
       id: 1,
       name: 'КамАЗ А123ВС',
@@ -91,7 +95,78 @@ const Index = () => {
       status: 'idle',
       route: 'Склад Барнаул-1'
     }
-  ];
+  ]);
+
+  const [enterpriseDialogOpen, setEnterpriseDialogOpen] = useState(false);
+  const [vehicleDialogOpen, setVehicleDialogOpen] = useState(false);
+  const [editingEnterprise, setEditingEnterprise] = useState<Enterprise | null>(null);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+
+  const handleSaveEnterprise = (enterprise: Omit<Enterprise, 'id'>) => {
+    if (editingEnterprise) {
+      setEnterprises(enterprises.map(e => 
+        e.id === editingEnterprise.id ? { ...enterprise, id: editingEnterprise.id } : e
+      ));
+      toast({
+        title: 'Обновлено',
+        description: 'Данные объекта успешно обновлены'
+      });
+    } else {
+      const newEnterprise = { ...enterprise, id: Date.now() };
+      setEnterprises([...enterprises, newEnterprise]);
+      toast({
+        title: 'Добавлено',
+        description: 'Новый объект успешно добавлен'
+      });
+    }
+    setEditingEnterprise(null);
+  };
+
+  const handleSaveVehicle = (vehicle: Omit<Vehicle, 'id'>) => {
+    if (editingVehicle) {
+      setVehicles(vehicles.map(v => 
+        v.id === editingVehicle.id ? { ...vehicle, id: editingVehicle.id } : v
+      ));
+      toast({
+        title: 'Обновлено',
+        description: 'Данные транспорта успешно обновлены'
+      });
+    } else {
+      const newVehicle = { ...vehicle, id: Date.now() };
+      setVehicles([...vehicles, newVehicle]);
+      toast({
+        title: 'Добавлено',
+        description: 'Транспорт успешно добавлен'
+      });
+    }
+    setEditingVehicle(null);
+  };
+
+  const handleDeleteEnterprise = (id: number) => {
+    setEnterprises(enterprises.filter(e => e.id !== id));
+    toast({
+      title: 'Удалено',
+      description: 'Объект удален из системы'
+    });
+  };
+
+  const handleDeleteVehicle = (id: number) => {
+    setVehicles(vehicles.filter(v => v.id !== id));
+    toast({
+      title: 'Удалено',
+      description: 'Транспорт удален из системы'
+    });
+  };
+
+  const openEnterpriseDialog = () => {
+    setEditingEnterprise(null);
+    setEnterpriseDialogOpen(true);
+  };
+
+  const openVehicleDialog = () => {
+    setEditingVehicle(null);
+    setVehicleDialogOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -135,9 +210,35 @@ const Index = () => {
             vehicles={vehicles}
             selectedPoint={selectedPoint}
             setSelectedPoint={setSelectedPoint}
+            onAddEnterprise={openEnterpriseDialog}
+            onEditEnterprise={(enterprise) => {
+              setEditingEnterprise(enterprise);
+              setEnterpriseDialogOpen(true);
+            }}
+            onDeleteEnterprise={handleDeleteEnterprise}
+            onAddVehicle={openVehicleDialog}
+            onEditVehicle={(vehicle) => {
+              setEditingVehicle(vehicle);
+              setVehicleDialogOpen(true);
+            }}
+            onDeleteVehicle={handleDeleteVehicle}
           />
         </Tabs>
       </main>
+
+      <EnterpriseDialog
+        open={enterpriseDialogOpen}
+        onOpenChange={setEnterpriseDialogOpen}
+        onSave={handleSaveEnterprise}
+        editingEnterprise={editingEnterprise}
+      />
+
+      <VehicleDialog
+        open={vehicleDialogOpen}
+        onOpenChange={setVehicleDialogOpen}
+        onSave={handleSaveVehicle}
+        editingVehicle={editingVehicle}
+      />
     </div>
   );
 };

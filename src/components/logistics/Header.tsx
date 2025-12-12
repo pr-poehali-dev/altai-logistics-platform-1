@@ -2,7 +2,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
-const Header = () => {
+interface HeaderProps {
+  onResetData?: () => void;
+}
+
+const Header = ({ onResetData }: HeaderProps) => {
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -21,6 +25,12 @@ const Header = () => {
               <div className="w-2 h-2 rounded-full bg-secondary mr-2 animate-pulse" />
               Система активна
             </Badge>
+            {onResetData && (
+              <Button variant="outline" size="sm" onClick={onResetData}>
+                <Icon name="RotateCcw" size={16} className="mr-2" />
+                Сбросить данные
+              </Button>
+            )}
             <Button variant="outline" size="sm">
               <Icon name="Bell" size={16} className="mr-2" />
               Уведомления

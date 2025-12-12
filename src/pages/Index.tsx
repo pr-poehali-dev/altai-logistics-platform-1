@@ -102,10 +102,8 @@ const Index = () => {
       const stored = localStorage.getItem(key);
       if (stored) {
         const parsed = JSON.parse(stored);
-        console.log(`Loaded ${key} from localStorage:`, parsed);
         return parsed;
       }
-      console.log(`No data in localStorage for ${key}, using defaults`);
       return defaultValue;
     } catch (error) {
       console.error(`Error loading ${key} from localStorage:`, error);
@@ -200,9 +198,20 @@ const Index = () => {
     setVehicleDialogOpen(true);
   };
 
+  const handleResetData = () => {
+    localStorage.removeItem('logistics-enterprises');
+    localStorage.removeItem('logistics-vehicles');
+    setEnterprises(defaultEnterprises);
+    setVehicles(defaultVehicles);
+    toast({
+      title: 'Данные сброшены',
+      description: 'Загружены начальные данные системы'
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
+      <Header onResetData={handleResetData} />
 
       <main className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

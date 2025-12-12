@@ -22,8 +22,8 @@ const Index = () => {
       input: ['Сырье А', 'Материал Б'],
       output: ['Продукция X', 'Продукция Y'],
       storage: [
-        { name: 'Продукция X', volume: 250, unit: 'т' },
-        { name: 'Сырье А', volume: 120, unit: 'т' }
+        { name: 'Продукция X', volume: 250, unit: 'м³' },
+        { name: 'Сырье А', volume: 120, unit: 'м³' }
       ],
       status: 'active'
     },
@@ -35,8 +35,8 @@ const Index = () => {
       input: ['Продукция X', 'Продукция Y'],
       output: [],
       storage: [
-        { name: 'Продукция X', volume: 500, unit: 'т' },
-        { name: 'Продукция Y', volume: 320, unit: 'т' }
+        { name: 'Продукция X', volume: 500, unit: 'м³' },
+        { name: 'Продукция Y', volume: 320, unit: 'м³' }
       ],
       status: 'active'
     },
@@ -48,8 +48,8 @@ const Index = () => {
       input: ['Металл', 'Компоненты'],
       output: ['Изделие Z'],
       storage: [
-        { name: 'Изделие Z', volume: 180, unit: 'т' },
-        { name: 'Металл', volume: 95, unit: 'т' }
+        { name: 'Изделие Z', volume: 180, unit: 'м³' },
+        { name: 'Металл', volume: 95, unit: 'м³' }
       ],
       status: 'warning'
     },
@@ -61,7 +61,7 @@ const Index = () => {
       input: ['Изделие Z'],
       output: [],
       storage: [
-        { name: 'Изделие Z', volume: 420, unit: 'т' }
+        { name: 'Изделие Z', volume: 420, unit: 'м³' }
       ],
       status: 'active'
     }

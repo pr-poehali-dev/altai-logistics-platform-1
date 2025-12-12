@@ -100,7 +100,13 @@ const Index = () => {
   const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
     try {
       const stored = localStorage.getItem(key);
-      return stored ? JSON.parse(stored) : defaultValue;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        console.log(`Loaded ${key} from localStorage:`, parsed);
+        return parsed;
+      }
+      console.log(`No data in localStorage for ${key}, using defaults`);
+      return defaultValue;
     } catch (error) {
       console.error(`Error loading ${key} from localStorage:`, error);
       return defaultValue;
